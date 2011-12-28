@@ -335,6 +335,16 @@ handle the children:
             child_resource = ChildResource()
             return child_resource.get_list(request, parent_id=obj.pk)
 
+Another alternative approach is to override the ``dispatch`` method::
+
+    # myapp/api/resources.py
+    class EntryResource(ModelResource):
+        user = fields.ForeignKey(UserResource, 'user')
+
+        class Meta:
+            queryset = Entry.objects.all()
+            resource_name = 'entry'
+
 .. testoutput::
    :options: +NORMALIZE_WHITESPACE
    :hide:
