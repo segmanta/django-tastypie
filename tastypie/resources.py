@@ -1295,6 +1295,13 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
         """
         raise NotImplementedError()
 
+    def get_bundles(self, objects_collection, request):
+        bundles = [
+            self.full_dehydrate(self.build_bundle(obj=obj, request=request), for_list=True)
+            for obj in objects_collection
+        ]
+        return bundles
+
     # Views.
 
     def get_list(self, request, **kwargs):
@@ -1316,10 +1323,7 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
         to_be_serialized = paginator.page()
 
         # Dehydrate the bundles in preparation for serialization.
-        bundles = [
-            self.full_dehydrate(self.build_bundle(obj=obj, request=request), for_list=True)
-            for obj in to_be_serialized[self._meta.collection_name]
-        ]
+        bundles = self.get_bundles(to_be_serialized[self._meta.collection_name], request)
 
         to_be_serialized[self._meta.collection_name] = bundles
         to_be_serialized = self.alter_list_data_to_serialize(request, to_be_serialized)
