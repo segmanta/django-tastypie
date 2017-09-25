@@ -100,6 +100,7 @@ class ResourceOptions(object):
     always_return_data = False
     collection_name = 'objects'
     detail_uri_name = 'pk'
+    use_original_get_resource_uri = not getattr(settings, 'TASTYPIE_SIMPLE_GET_RESOURCE_URI', False)
 
     def __new__(cls, meta=None):
         overrides = {}
@@ -815,7 +816,20 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
 
         return kwargs
 
-    def get_resource_uri(self, bundle_or_obj=None, url_name='api_dispatch_list'):
+    def simple_get_resource_uri(self, bundle_or_obj=None, url_name='api_dispatch_list'):
+        kwargs = self.resource_uri_kwargs(bundle_or_obj)
+
+        if 'resource_name' not in kwargs:
+            return ''
+
+        resource_uri = '/api/v1/%s/' % kwargs['resource_name']
+
+        if 'pk' in kwargs:
+            resource_uri = '%s%d/' % (resource_uri, kwargs['pk'])
+
+        return resource_uri
+
+    def original_get_resource_uri(self, bundle_or_obj=None, url_name='api_dispatch_list'):
         """
         Handles generating a resource URI.
 
@@ -835,6 +849,12 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
             return self._build_reverse_url(url_name, kwargs=self.resource_uri_kwargs(bundle_or_obj))
         except NoReverseMatch:
             return ''
+
+    def get_resource_uri(self, bundle_or_obj=None, url_name='api_dispatch_list'):
+        if self._meta.use_original_get_resource_uri:
+            return self.original_get_resource_uri(bundle_or_obj, url_name)
+        else:   
+            return self.simple_get_resource_uri(bundle_or_obj, url_name)
 
     def get_via_uri(self, uri, request=None):
         """
