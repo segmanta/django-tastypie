@@ -98,7 +98,7 @@ class ResourceOptions(object):
     excludes = []
     include_resource_uri = True
     include_absolute_url = False
-    always_return_data = False
+    always_return_data = getattr(settings, 'TASTYPIE_RESOURCE_ALWAYS_RETURN_DATA', False)
     collection_name = 'objects'
     detail_uri_name = 'pk'
     use_original_get_resource_uri = not getattr(settings, 'TASTYPIE_SIMPLE_GET_RESOURCE_URI', False)
