@@ -825,7 +825,7 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
         resource_uri = '/api/v1/%s/' % kwargs['resource_name']
 
         if 'pk' in kwargs:
-            resource_uri = '%s%d/' % (resource_uri, kwargs['pk'])
+            resource_uri = '{0}{1}/'.format(resource_uri, kwargs['pk'])
 
         return resource_uri
 
